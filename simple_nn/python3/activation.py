@@ -1,6 +1,9 @@
 """
 activation.py
 ~~~~~~~~~~~~~~
+Author: Jensen Su
+Date:   2016.07
+--------------------
 Define the activation funcions
 """
 
@@ -58,4 +61,41 @@ class Tanh(Activation):
     def prime(z):
         """ The derivative. """
         return 1. - Tanh.func(z) ** 2
+
+class Softmax(Activation):
+
+    @staticmethod
+    def func(z):
+        """ The functionality. """
+        for zi in z:
+            if zi > 30:
+                print("z is too large!", sys.stderr)
+                exit(1)
+
+        exp_z = np.exp(z)
+        return exp_z / np.sum(exp_z)
+    
+    @staticmethod
+    def prime(z):
+        """ 
+        Simply return 1 for the following reason.
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        The correct derivative should be 
+        if j = k, da_j / dz_k = a_j * (1 - a_j) > 0;
+        if j != k, da_j / dz_k = - a_j ** 2 < 0;
+
+        However here, the derivative is of the output activation w.r.t 
+        its weighted input, that is, j = k.
+
+        NOTE: the correct derivative should be
+                
+                Softmax.func(z) - Softmax.func(z) ** 2.
+
+        But this derivative is not used but be merged to the derivative 
+        of ''LogCost''. To make it consistence with the ''LogCost'', we
+        simply return 1.
+        So that we could also used a FullConnectedLayer with ''Softmax''
+        activation and ''LogCost'' as a SoftmaxLayer.
+        """
+        return 1.
 

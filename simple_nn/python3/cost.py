@@ -1,12 +1,16 @@
 """
 cost.py
 ~~~~~~~
+Author: Jensen Su
+Date:   2016.07
+--------------------
 Define the cost functions.
 """
 
 ### libraries
 
 # Standard libraries
+import sys
 
 # Third-party libraries
 import numpy as np
@@ -67,8 +71,8 @@ class CrossEntropyCost(Cost):
         ensures that that is converted to the correct value(0.0).
         """
         for ai in a:
-            if ai < 0:
-                print("in CrossEntropyCost.func(a, y)... require a_i > 0, a_i belong to a.")
+            if ai < 0 or ai > 1:
+                print("in CrossEntropyCost.func(a, y)... require 0 <= a_i <= 1, a_i belong to a.", sys.stderr)
                 exit(1)
 
         return np.sum(np.nan_to_num(-y * np.log(a) - (1-y) * np.log(1-a)))
@@ -80,6 +84,41 @@ class CrossEntropyCost(Cost):
         ''a'' is the output of neurons
         ''y'' is the expected output of neurons
         """
+        for ai in a:
+            if ai < 0 or ai > 1:
+                print("in CrossEntropyCost.func(a, y)... require 0 <= a_i <= 1, a_i belong to a.", sys.stderr)
+                exit(1)
         #return (a - y) # delta
         return (a - y) / (a * (1 - a))
 
+class LogCost(Cost):
+    """
+    Only designed for softmax layer.
+    """
+
+    @staticmethod
+    def func(a, y):
+        """ Return the total cost. """
+        
+        return - np.sum(y * np.log(a))
+
+    @staticmethod
+    def Cp_a(a, y):
+        """
+        ''y'' must be vectorized with components in {0, 1}
+        For example: y = array([0, ..., 1, 0, ...])
+        ---------------------------------------------
+        NOTE: This is the derivative of log cost w.r.t weighted input ''z'',
+              rather than activation ''a''.
+              This is because dC / dz = (dC / da) * (da / dz), where
+              dC / da = - y * 1.0 / a, da / dz = a - a ** 2 for softmax activation.
+              That make dC / dz = a - y. Since some ''a_i'' in ''a'' may be zero,
+              seperating dC / da and da / dz will make the error ''divided by zero'' 
+            
+              This is to make it consistence with the class ''Softmax'' in 
+              ''activation.py'', such that we could also used a FullConnectedLayer 
+              with ''Softmax'' activation and ''LogCost'' as a SoftmaxLayer.
+        """
+        # return - y * 1. / a
+        return a - y
+        
