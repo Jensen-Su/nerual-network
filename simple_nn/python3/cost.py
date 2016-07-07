@@ -35,7 +35,7 @@ class Cost(object):
         """
         The error. Need to be implemented by subclass.
         -------------------------------------------------------
-        Return the error delta from the output layer.
+        Return the derivative of cost function w.r.t ''a''. 
         """
         print("Delta function not provided. Program exited.\n", sys.stderr)
         exit(1)
@@ -53,7 +53,7 @@ class QuadraticCost(Cost):
     @staticmethod
     def Cp_a(a, y):
         """
-        Return the error delta from the output layer. 
+        Return the derivative of cost function w.r.t ''a''. 
         """
         #return (a - y) * Sigmoid.prime(z)
         return (a - y)
@@ -94,6 +94,9 @@ class CrossEntropyCost(Cost):
 class LogCost(Cost):
     """
     Only designed for softmax layer.
+    --------------------------------
+    ''y'' must be vectorized with components in {0, 1}
+    For example: y = array([0, ..., 1, 0, ...])
     """
 
     @staticmethod
@@ -105,9 +108,6 @@ class LogCost(Cost):
     @staticmethod
     def Cp_a(a, y):
         """
-        ''y'' must be vectorized with components in {0, 1}
-        For example: y = array([0, ..., 1, 0, ...])
-        ---------------------------------------------
         NOTE: This is the derivative of log cost w.r.t weighted input ''z'',
               rather than activation ''a''.
               This is because dC / dz = (dC / da) * (da / dz), where
