@@ -1,40 +1,9 @@
 """
 neuralnetwork.py
 ~~~~~~~~~~~~~~~~~~~
-A elasitc neural network.
-
-A nerual network has the following components:
-    . Layers (ConvLayer, PoolingLayer, FullConnectedLayer, SoftmaxLayer ...)
-    . Layer size (type, number of sublayers, number of neurons each layer)
-    . Activation function (sigmoid, ReLu, tanh...)
-
-To train a network, we have the following design choices:
-    . How to initialize the weights
-    . Cost function (quadratic, log(a_y), cross-entropy...)
-    . Regularization (L1 norm, L2 norm, dropout, data expansion...)
-    . For L1&L2 regularization, the strength \lambda
-    . The learning rate \eta
-    . For SGD algorithm, the batch size \gamma
-    . Even for SGD, there can be many choice (Newton, Newton alike, ...)
-
-The four fundamental equations behind backpropagation:
-    http://neuralnetworksanddeeplearning.com/chap2.html
-    . delta_L = grad(C, a) * ap(z_L)        ---- The output layer
-    . delta_l = dot(w_{l+1}.transpose(), delta_{l+1}) * ap(z_l)
-    . grad(C, b_l) = delta_l
-    . grad(C, w_l) = dot(delta_l.transpose(), a_{l-1})
-    Where:
-        . delta is the gradient of cost function C with respective to z
-        . z reprensents for the weighed input to a neuron, it has the form:
-                            z = w*a + b
-        . C is the cost function, a represents for the activation function
-        . grad(C, a) is the gradient of C respective to a
-        . ap(z_l) is the derivative of a respective to z
-        . x * y is element-wise Hadamard product of x and y
-        . dot(x, y) is the dot product of x and y
-        . L is the number of layers, _L is the last layer
-        . _l spcifies certain layer
-    
+Author: Jensen Su
+Date:   2016.07
+--------------------
 """
 ### libraries
 
@@ -58,6 +27,17 @@ class NeuralNetwork(object):
 
     def __init__(self, layers, cost = Cost.QuadraticCost()):
 
+        if type(layers) != list:
+            print("Illegal input, layers must be a list.", sys.stderr)
+            exit(1)
+
+        for l in range(1, len(layers)):
+            sizes0 = layers[l - 1].size()
+            sizes1 = layers[l].size()
+            if sizes0[-1] != sizes1[0]:
+                print("Illegal input layer sizes.", sys.stderr)
+                exit(1)
+
         self.layers = layers
         self.cost = cost
 
@@ -69,6 +49,9 @@ class NeuralNetwork(object):
         ''training_data'' and ''test_data'' are lists of examples. 
         Each example (x, y) is a tuple of input feture vector x and 
         expected output value (or vector if vectorized) y.
+        NOTE:
+        ''y'' in training_data is vectorized, while
+        ''y'' in test_data is not.
         """
         training_data = list(training_data)
         test_data = list(test_data)
@@ -114,7 +97,7 @@ class NeuralNetwork(object):
     def backprop(self, Cp_a):
         
         for k in range(len(self.layers)):
-            Cp_a = self.layers[-k].backprop(Cp_a)
+            Cp_a = self.layers[-k - 1].backprop(Cp_a)
         return Cp_a
 
     def update(self, eta, lmbda, batch_size, n):
@@ -130,7 +113,7 @@ class NeuralNetwork(object):
         is assumed to be the index of whichever neuron in the final layer
         has the highest activation.
         """
-        
+       
         if vectorize:
             test_results = [(np.argmax(self.feedforward(x)), np.argmax(y))
                     for (x, y) in test_data]

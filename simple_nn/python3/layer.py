@@ -1,6 +1,9 @@
 """
 layer.py
 ~~~~~~~~~~~~~~~~~~~
+Author: Jensen Su
+Date:   2016.07
+--------------------
 Define different type of layers for assembling a nerual network.
     . FullCOnnectedLayer
     . SoftmaxLayer
@@ -95,31 +98,12 @@ class BaseLayer(object):
     def update(self, eta, lmbda, batch_size, n):
         print("Functionality of ''update'' not provided. Program exited.\n")
 
-
+#### FullConnetedLayer--------------------------------------------------------------
 class FullConnectedLayer(BaseLayer):
     """
-    FullConnectedLayer
-    ~~~~~~~~~~~~~~~~~~~~
-    Data members: 
-    sizes       ---- <type list> sizes of the network
-    n_layers    ---- <type int> number of sublayers
-    activation  ---- <type Activation> activation function for neurons
-    weights     ---- <type list> to store weights
-    biases      ---- <type list> to store biases
-    neurons     ---- <type list> to store states (outputs) of neurons
-    zs          ---- <type list> to store weighted inputs to neurons
-    grad_w      ---- <type list> to store gradient of Cost w.r.t weights
-    grad_b      ---- <type list> to store gradient of Cost w.r.t biases
-    ---------------------
-    Methods:
-    __init__(self, sizes, activation = Sigmoid())
-    size(self)
-    model(self)
-    feedforward(self, a)
-    backprop(self, C_p)
-    update(self, eta, lmbda, batch_size, n)
+    class FullConnectedLayer.
+    ~~~~~~~~~~~~~~~~~~~~~~~~
     """
-
     def __init__(self, sizes, activation = A.Sigmoid(), normal_initialization = False):
         """
         The list ''sizes'' contains the number of neurons in repective layers
@@ -137,6 +121,17 @@ class FullConnectedLayer(BaseLayer):
 
         BaseLayer.__init__(self, sizes, activation)
 
+        n_layers = len(sizes)
+        
+        if n_layers <= 1:
+            print("Illegal sizes (number of layers <= 1)!", sys.stderr)
+            exit(1)
+
+        for num in sizes:
+            if num < 0:
+                print("Number of neurons < 0", sys.stderr)
+                exit(1)
+        
         if normal_initialization:
             self.weights = [np.random.randn(j, i)
                     for i, j in zip(sizes[:-1], sizes[1:])]
@@ -202,3 +197,14 @@ class FullConnectedLayer(BaseLayer):
         for dw, db in zip(self.grad_w, self.grad_b):
             dw.fill(0)
             db.fill(0)
+
+#### SoftmaxLayer ------------------------------------------------------------
+class SoftmaxLayer(FullConnectedLayer):
+    """
+    class SoftmaxLayer.
+    ~~~~~~~~~~~~~~~~~~~
+    With the class ''FullConnectedLayer'' defined here, a ''SoftmaxLayer'' is just
+    a ''FullConnectedLayer'' with a ''Softmax'' and a ''LogCost'' in disguise. 
+    """
+    def __init__(self, sizes, activation = A.Softmax(), normal_initialization = False):
+        FullConnectedLayer.__init__(self, sizes, activation, normal_initialization)
