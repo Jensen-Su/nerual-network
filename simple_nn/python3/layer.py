@@ -4,15 +4,16 @@ layer.py
 Author: Jensen Su
 Date:   2016.07
 --------------------
-Define different type of layers for assembling a nerual network.
-    . FullCOnnectedLayer
+Define different types of layers for assembling a nerual network.
+    . FullConnectedLayer
     . SoftmaxLayer
     . PoolingLayer
     . ConvLayer
 
 A nerual network has the following components:
     . Layers (ConvLayer, PoolingLayer, FullConnectedLayer, SoftmaxLayer ...)
-    . Layer size (type, number of sublayers, number of neurons each layer)
+    . Layer size (type, number of sublayers, and number of neurons each sublayer)
+    . weights and biases
     . Activation function (sigmoid, ReLu, tanh...)
 
 To train a network, we have the following design choices:
@@ -160,8 +161,6 @@ class FullConnectedLayer(BaseLayer):
         """
         Backpropagate the delta error.
         ------------------------------
-        Return a tuple whose first component is a list of the gradients of 
-        weights and biases, whose second component is the backpropagated delt.
         Cp_a, dC/da: derivative of cost function w.r.t a, output of neurons. 
         """
         # The last layer
